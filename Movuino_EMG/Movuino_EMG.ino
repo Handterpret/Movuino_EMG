@@ -1,0 +1,47 @@
+/* ============================================
+I2Cdev device library code is placed under the MIT license
+Copyright (c) 2012 Jeff Rowberg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+===============================================
+*/
+
+#include "MPU6050_functions.h"
+#include "Handterpret.h"
+#include "EMG_classification.h"
+
+
+MPU6050 mpu(0x69); // <-- use for AD0 high, 0x69 is address of MPU
+Handterpret htp;
+
+void setup() {
+    EMGSetup();
+    mpu = mpu_init(mpu);
+    htp.StartTime = millis();
+}
+
+void loop() {
+    float *p = get_mpu_data(mpu);
+    if(p != NULL)
+      htp.update(p);
+
+    delay(htp.PERIOD_DURATION/htp.MEASURES_PER_PERIOD);
+
+    EMGLoop();
+}
